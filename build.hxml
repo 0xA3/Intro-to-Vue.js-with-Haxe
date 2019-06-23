@@ -1,0 +1,5 @@
+-cp src
+-D analyzer-optimize
+-D js-es=6
+-main Main
+--js web/main.js
