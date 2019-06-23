@@ -2,6 +2,11 @@ class Main {
 	
 	static function main() {
 		
-		final product = "Socks";
+		final app = new Vue({
+			el: '#app',
+			data: {
+				product: "Socks"
+			}
+		});
 	}
 }
