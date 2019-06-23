@@ -5,7 +5,8 @@ class Main {
 		final app = new Vue({
 			el: '#app',
 			data: {
-				product: "Socks"
+				product: "Socks",
+				image: "https://www.vuemastery.com/images/challenges/vmSocks-green-onWhite.jpg"
 			}
 		});
 	}
