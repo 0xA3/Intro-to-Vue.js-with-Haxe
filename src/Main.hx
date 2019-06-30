@@ -5,6 +5,12 @@ class Main {
 	static function main() {
 
 		Vue.component( 'product', {
+			props: {
+				premium: {
+					type: Bool,
+					required: true
+				}
+			},
 			template: '
 				<div class="product">
 				
@@ -15,6 +21,7 @@ class Main {
 					<h1>{{ title }}</h1>
 					<p v-if="inStock">In Stock</p>
 					<p v-else>Out of Stock</p>
+					<p>Shipping: {{ shipping }}</p>
 					<ul>
 						<li v-for="detail in details">{{ detail }}</li>
 					</ul>
@@ -64,12 +71,17 @@ class Main {
 			computed: {
 				title: () -> '${Lib.nativeThis.brand} ${Lib.nativeThis.product}',
 				image: () -> Lib.nativeThis.variants[Lib.nativeThis.selectedVariant].variantImage,
-				inStock: () -> Lib.nativeThis.variants[Lib.nativeThis.selectedVariant].variantQuantity
+				inStock: () -> Lib.nativeThis.variants[Lib.nativeThis.selectedVariant].variantQuantity,
+				shipping: () -> Lib.nativeThis.premium ? "Free" : "2.99"
+
 			}
 		});
 		
 		final app = new Vue({
-			el: '#app'
+			el: '#app',
+			data: {
+				premium: true
+			}
 		});
 	}
 }
