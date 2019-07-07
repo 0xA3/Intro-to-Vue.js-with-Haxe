@@ -4,6 +4,7 @@ class Main {
 	
 	static function main() {
 
+		Vue.config.devtools = true;
 		Vue.component( 'product', {
 			props: {
 				premium: {
@@ -37,10 +38,6 @@ class Main {
 						:class="{ disabledButton: !inStock }"
 						>Add to Cart
 					</button>
-					
-					<div class="cart">
-						<p>Cart({{ cart }})</p>
-					</div>
 				</div>
 			',
 			data: () -> {
@@ -61,11 +58,10 @@ class Main {
 						variantImage: 'https://www.vuemastery.com/images/challenges/vmSocks-blue-onWhite.jpg',
 						variantQuantity: 0
 					}
-				],
-				cart: 0
+				]
 			},
 			methods: {
-				addToCart: () -> Lib.nativeThis.cart += 1,
+				addToCart: () -> Lib.nativeThis.$emit( 'add-to-cart', Lib.nativeThis.variants[Lib.nativeThis.selectedVariant].variantId ),
 				updateProduct: ( index ) -> Lib.nativeThis.selectedVariant = index
 			},
 			computed: {
@@ -80,7 +76,11 @@ class Main {
 		final app = new Vue({
 			el: '#app',
 			data: {
-				premium: true
+				premium: true,
+				cart: []
+			},
+			methods: {
+				updateCart: ( id ) -> Lib.nativeThis.cart.push( id )
 			}
 		});
 	}
