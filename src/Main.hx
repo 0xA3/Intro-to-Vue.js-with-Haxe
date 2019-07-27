@@ -92,6 +92,13 @@ class Main {
 		Vue.component( 'product-review', {
 			template: '
 				<form class="review-form" @submit.prevent="onSubmit">
+					
+					<p v-if="errors.length">
+						<b>Please correct the following error(s)</b>
+						<ul>
+							<li v-for="error in errors">{{ error }}</li>
+						</ul>
+					</p>
 					<p>
 						<label for="name">Name:</label>
 						<input id="name" v-model="name" placeholder="name">
@@ -123,20 +130,28 @@ class Main {
 				return {
 					name: null,
 					review: null,
-					rating: null
+					rating: null,
+					errors: []
 				}
 			},
 			methods: {
 				onSubmit: () -> {
-					final productReview = {
-						name: Lib.nativeThis.name,
-						review: Lib.nativeThis.review,
-						rating: Lib.nativeThis.rating
+					Lib.nativeThis.errors = [];
+					if( Lib.nativeThis.name != null && Lib.nativeThis.review != null && Lib.nativeThis.rating != null ) {
+						final productReview = {
+							name: Lib.nativeThis.name,
+							review: Lib.nativeThis.review,
+							rating: Lib.nativeThis.rating
+						}
+						Lib.nativeThis.$emit( 'review-submitted', productReview );
+						Lib.nativeThis.name = null;
+						Lib.nativeThis.review = null;
+						Lib.nativeThis.rating = null;
+					} else {
+						if( Lib.nativeThis.name == null ) Lib.nativeThis.errors.push( "Name required." );
+						if( Lib.nativeThis.review == null ) Lib.nativeThis.errors.push( "Review required." );
+						if( Lib.nativeThis.rating == null ) Lib.nativeThis.errors.push( "Rating required." );
 					}
-					Lib.nativeThis.$emit( 'review-submitted', productReview );
-					Lib.nativeThis.name = null;
-					Lib.nativeThis.review = null;
-					Lib.nativeThis.rating = null;
 				}
 			}
 		});
