@@ -38,6 +38,8 @@ class Main {
 						:class="{ disabledButton: !inStock }"
 						>Add to Cart
 					</button>
+
+					<product-review @review-submitted="addReview"></product-review>
 				</div>
 			',
 			data: () -> {
@@ -58,11 +60,13 @@ class Main {
 						variantImage: 'https://www.vuemastery.com/images/challenges/vmSocks-blue-onWhite.jpg',
 						variantQuantity: 0
 					}
-				]
+				],
+				reviews: []
 			},
 			methods: {
 				addToCart: () -> Lib.nativeThis.$emit( 'add-to-cart', Lib.nativeThis.variants[Lib.nativeThis.selectedVariant].variantId ),
-				updateProduct: ( index ) -> Lib.nativeThis.selectedVariant = index
+				updateProduct: ( index ) -> Lib.nativeThis.selectedVariant = index,
+				addReview: ( productReview ) -> Lib.nativeThis.reviews.push( productReview )
 			},
 			computed: {
 				title: () -> '${Lib.nativeThis.brand} ${Lib.nativeThis.product}',
@@ -73,6 +77,58 @@ class Main {
 			}
 		});
 		
+		Vue.component( 'product-review', {
+			template: '
+				<form class="review-form" @submit.prevent="onSubmit">
+					<p>
+						<label for="name">Name:</label>
+						<input id="name" v-model="name" placeholder="name">
+					</p>
+
+					<p>
+						<label for="review">Review:</label>
+						<textarea id="review" v-model="review"></textarea>
+					</p>
+
+					<p>
+						<label for="rating">Rating:</label>
+						<select id="rating" v-model.number="rating">
+						<option>5</option>
+						<option>4</option>
+						<option>3</option>
+						<option>2</option>
+						<option>1</option>
+						</select>
+					</p>
+
+					<p>
+						<input type="submit" value="Submit">
+					</p>
+
+				</form>
+			',
+			data: () -> {
+				return {
+					name: null,
+					review: null,
+					rating: null
+				}
+			},
+			methods: {
+				onSubmit: () -> {
+					final productReview = {
+						name: Lib.nativeThis.name,
+						review: Lib.nativeThis.review,
+						rating: Lib.nativeThis.rating
+					}
+					Lib.nativeThis.$emit( 'review-submitted', productReview );
+					Lib.nativeThis.name = null;
+					Lib.nativeThis.review = null;
+					Lib.nativeThis.rating = null;
+				}
+			}
+		});
+
 		final app = new Vue({
 			el: '#app',
 			data: {
