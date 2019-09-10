@@ -1,3 +1,4 @@
+import js.Syntax;
 import js.Lib;
 
 class Main {
@@ -5,6 +6,9 @@ class Main {
 	static function main() {
 
 		Vue.config.devtools = true;
+		
+		var eventBus = new Vue();
+		
 		Vue.component( 'product', {
 			props: {
 				premium: {
@@ -39,19 +43,8 @@ class Main {
 						>Add to Cart
 					</button>
 
-					<div>
-						<h2>Reviews</h2>
-						<p v-if="!reviews.length">There are no reviews yet.</p>
-						<ul>
-							<li v-for="review in reviews">
-								<p>{{ review.name }}</p>
-								<p>Rating: {{ review.rating }}</p>
-								<p>{{ review.review }}</p>
-							</li>
-						</ul>
-					</div>
+					<product-tabs :reviews="reviews"></product-tabs>
 
-					<product-review @review-submitted="addReview"></product-review>
 				</div>
 			',
 			data: () -> {
@@ -78,7 +71,6 @@ class Main {
 			methods: {
 				addToCart: () -> Lib.nativeThis.$emit( 'add-to-cart', Lib.nativeThis.variants[Lib.nativeThis.selectedVariant].variantId ),
 				updateProduct: ( index ) -> Lib.nativeThis.selectedVariant = index,
-				addReview: ( productReview ) -> Lib.nativeThis.reviews.push( productReview )
 			},
 			computed: {
 				title: () -> '${Lib.nativeThis.brand} ${Lib.nativeThis.product}',
@@ -86,6 +78,10 @@ class Main {
 				inStock: () -> Lib.nativeThis.variants[Lib.nativeThis.selectedVariant].variantQuantity,
 				shipping: () -> Lib.nativeThis.premium ? "Free" : "2.99"
 
+			},
+			mounted: () -> {
+				// eventBus.on( 'review-submitted', productReview -> Lib.nativeThis.reviews.push( productReview ));
+				eventBus.on( 'review-submitted', Syntax.code("productReview => this.reviews.push( productReview )"));
 			}
 		});
 		
@@ -143,7 +139,7 @@ class Main {
 							review: Lib.nativeThis.review,
 							rating: Lib.nativeThis.rating
 						}
-						Lib.nativeThis.$emit( 'review-submitted', productReview );
+						eventBus.emit( 'review-submitted', productReview );
 						Lib.nativeThis.name = null;
 						Lib.nativeThis.review = null;
 						Lib.nativeThis.rating = null;
@@ -152,6 +148,47 @@ class Main {
 						if( Lib.nativeThis.review == null ) Lib.nativeThis.errors.push( "Review required." );
 						if( Lib.nativeThis.rating == null ) Lib.nativeThis.errors.push( "Rating required." );
 					}
+				}
+			}
+		});
+
+		Vue.component( 'product-tabs', {
+			props: {
+				reviews: {
+					type: Array,
+					required: true
+				}
+			},
+			template: '
+				<div>
+					<div>
+						<span 	class="tab" 
+								:class="{ activeTab: selectedTab === tab }"
+								v-for="(tab, index) in tabs"
+								:key="index"
+								@click="selectedTab = tab">
+								{{ tab }}
+								</span>
+					</div>
+
+					<div v-show="selectedTab === \'Reviews\'">
+						<p v-if="!reviews.length">There are no reviews yet.</p>
+						<ul>
+							<li v-for="review in reviews">
+								<p>{{ review.name }}</p>
+								<p>Rating: {{ review.rating }}</p>
+								<p>{{ review.review }}</p>
+							</li>
+						</ul>
+					</div>
+
+					<product-review v-show="selectedTab === \'Make a Review\'"></product-review>
+				</div>
+			',
+			data: () -> {
+				return {
+					tabs:['Reviews', 'Make a Review'],
+					selectedTab: 'Reviews' // set from @click
 				}
 			}
 		});

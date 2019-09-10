@@ -1,5 +1,7 @@
 extern class Vue {
-	public static var config:Dynamic;
-	public function new( options:Dynamic );
-	public static function component( name:String, options:Dynamic ):Void;
+	static var config:Dynamic;
+	function new( ?options:Dynamic );
+	static function component( name:String, options:Dynamic ):Void;
+	@:native("$emit") function emit( name:String, options:Dynamic ):Void;
+	@:native("$on") function on( name:String, options:Dynamic ):Void;
 }
